@@ -67,8 +67,8 @@ class ProjectorFactory(WebSocketServerFactory):
             c["partner"].sendMessage(payload)
 
     def sendNewState(self, payload):
-      for peer, client in self.clients:
-        c["object"].sendMessage(json.dumps(payload))
+      for peer, client in self.clients.iteritems():
+        client["object"].sendMessage(json.dumps(payload))
 
 
 
