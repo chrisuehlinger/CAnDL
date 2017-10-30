@@ -10,5 +10,5 @@ def getFrame(debug=False):
         cv2.destroyAllWindows()
 
     cv2.imwrite("test.png",im)
-    corners('test.png', debug=debug)
+    return corners('test.png', debug=debug)
     #corners('../test-images/messy-scene-color.png')

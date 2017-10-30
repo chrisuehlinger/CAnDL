@@ -32,7 +32,7 @@ def corners(imgpath, debug=False):
         targetColor = [0,0,255]
         colorDiff = math.sqrt((color[2]-targetColor[2])**2 + (color[1]-targetColor[1])**2 + (color[0]-targetColor[0])**2)
         #if cimg[i[1]][i[0]][0] < 70:
-        if colorDiff < 120:
+        if colorDiff < 150:
           corners.append([int(i[0]),int(i[1])])
           cv2.circle(dots,(i[0],i[1]),0,(255,255,255),10)
         else:
@@ -61,8 +61,8 @@ def corners(imgpath, debug=False):
             lines.append(dict(p1=i, p2=j, dist=dist))
     lines = sorted(lines, key=lambda x:x['dist'])
 
-    LENGTH_TOLERANCE = 100.0
-    CENTER_TOLERANCE = 5.0
+    LENGTH_TOLERANCE = 200.0
+    CENTER_TOLERANCE = 200.0
     ANGLE_TOLERANCE = 5.0
     candidateRects = []
     for i in range(len(lines)):
@@ -71,6 +71,8 @@ def corners(imgpath, debug=False):
             v2 = lines[j]
 
             if math.fabs(v1['dist']-v2['dist']) > LENGTH_TOLERANCE:
+                if debug:
+                    print 'Broke Length Tolerance: ' + str(math.fabs(v1['dist']-v2['dist']))
                 break
 
             if v1['p1'] == v2['p1'] or v1['p1'] == v2['p2'] or v1['p2'] == v2['p1'] or v1['p2'] == v2['p2']:
@@ -84,6 +86,8 @@ def corners(imgpath, debug=False):
             c2 = [(v2p1[0]+v2p2[0])/2, (v2p1[1]+v2p2[1])/2]
             cdist = math.hypot(c1[0]-c2[0], c1[1]-c2[1])
             if cdist > CENTER_TOLERANCE:
+                if debug:
+                        print 'Broke Center Tolerance: ' + str(cdist)
                 continue
 
             n1 = [v2p1[1]-v1p1[1],v2p1[0]-v1p1[0]]
@@ -103,6 +107,8 @@ def corners(imgpath, debug=False):
                     cv2.line(out,(v1p2[0],v1p2[1]),(v2p2[0],v2p2[1]),(0,0,255),1)
                     cv2.circle(out,(c1[0],c1[1]),0,(0,255,0),2)
                     cv2.circle(out,(c2[0],c2[1]),0,(0,255,0),2)
+            elif debug:
+                print 'Broke Angle Tolerance: ' + str(math.fabs(diff1-90.0))
 
             if debug:
                 print (a1, a2, diff1, math.fabs(diff1-90.0))
@@ -205,7 +211,7 @@ def corners(imgpath, debug=False):
                 continue
 
             for i in range(-len(rect['values'])+1, 1):
-                attempt = [rect['values'][i], rect['values'][i+1], rect['values'][i+2], rect['values'][i+3]]
+                attempt = [int(rect['values'][i]), int(rect['values'][i+1]), int(rect['values'][i+2]), int(rect['values'][i+3])]
                 if attempt == template['values']:
                     validRect = {
                         'values':template['values'],
@@ -225,6 +231,7 @@ def corners(imgpath, debug=False):
             font = cv2.FONT_HERSHEY_SIMPLEX            
             cv2.putText(out,rect['name'],(rect['points'][0][0],rect['points'][0][1]), font, 0.5,(0,0,0),1,cv2.LINE_AA)
 
+        cv2.destroyAllWindows()
         cv2.imshow('next',out)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
