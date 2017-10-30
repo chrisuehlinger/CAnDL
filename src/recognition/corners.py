@@ -11,9 +11,6 @@ def corners(imgpath, debug=False):
     height, width = gray.shape[:2]
     dots = np.zeros((height,width,3), np.uint8)
 
-##    circles = cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,1,20,
-##                                param1=50,param2=15,minRadius=0,maxRadius=20)
-
     circles = []
     params = cv2.SimpleBlobDetector_Params()
     detector = cv2.SimpleBlobDetector_create(params)
@@ -21,17 +18,13 @@ def corners(imgpath, debug=False):
     for kp in keypoints:
         circles.append([int(kp.pt[0]), int(kp.pt[1]), int(kp.size)])
 
-    #circles = np.uint16(np.around(circles))
-    #print len(circles[0,:])
     points = []
     sideCandidates = []
     corners = []
-    #for i in circles[0,:]:
     for i in circles:
         color = inputImage[i[1]][i[0]]
         targetColor = [0,0,255]
         colorDiff = math.sqrt((color[2]-targetColor[2])**2 + (color[1]-targetColor[1])**2 + (color[0]-targetColor[0])**2)
-        #if cimg[i[1]][i[0]][0] < 70:
         if colorDiff < 150:
           corners.append([int(i[0]),int(i[1])])
           cv2.circle(dots,(i[0],i[1]),0,(255,255,255),10)
@@ -185,7 +178,7 @@ def corners(imgpath, debug=False):
                     if colorDiff < shortestDist:
                         shortestDist = colorDiff
                         shortestDistIndex = target
-                
+
                 if shortestDistIndex < 100:
                     side['value'] += shortestDistIndex*len(COLOR_VALUES)**j
 
@@ -228,12 +221,12 @@ def corners(imgpath, debug=False):
     if debug:
         for rect in validRects:
             print rect
-            font = cv2.FONT_HERSHEY_SIMPLEX            
+            font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(out,rect['name'],(rect['points'][0][0],rect['points'][0][1]), font, 0.5,(0,0,0),1,cv2.LINE_AA)
 
         cv2.destroyAllWindows()
         cv2.imshow('next',out)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        
+
     return validRects
