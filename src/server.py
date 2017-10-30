@@ -4,7 +4,6 @@ import random
 from twisted.web.static import File
 from twisted.python import log
 from twisted.web.server import Site
-from twisted.internet import reactor
 
 from autobahn.twisted.websocket import WebSocketServerFactory, \
     WebSocketServerProtocol
@@ -40,9 +39,9 @@ class SomeServerProtocol(WebSocketServerProtocol):
 
 
 
-class ChatRouletteFactory(WebSocketServerFactory):
+class ProjectorFactory(WebSocketServerFactory):
     def __init__(self, *args, **kwargs):
-        super(ChatRouletteFactory, self).__init__(*args, **kwargs)
+        super(ProjectorFactory, self).__init__(*args, **kwargs)
         self.clients = {}
 
     def register(self, client):
@@ -82,13 +81,13 @@ class ChatRouletteFactory(WebSocketServerFactory):
             c["partner"].sendMessage(payload)
 
 
-if __name__ == "__main__":
+def serve(reactor):
     log.startLogging(sys.stdout)
 
     # static file server seving index.html as root
     root = File(".")
 
-    factory = ChatRouletteFactory(u"ws://127.0.0.1:8080")
+    factory = ProjectorFactory(u"ws://127.0.0.1:8080")
     factory.protocol = SomeServerProtocol
     resource = WebSocketResource(factory)
     # websockets resource on "/ws" path
@@ -96,4 +95,3 @@ if __name__ == "__main__":
 
     site = Site(root)
     reactor.listenTCP(8080, site)
-    reactor.run()

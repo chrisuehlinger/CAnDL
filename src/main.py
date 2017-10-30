@@ -1,6 +1,9 @@
 from recognition import getFrame
 from twisted.internet import task
 from twisted.internet import reactor
+from server import serve
+
+serve(reactor)
 
 def runEverySecond():
     print "a second has passed"
