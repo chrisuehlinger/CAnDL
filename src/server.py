@@ -1,5 +1,6 @@
 import sys
 import random
+import json
 
 from twisted.web.static import File
 from twisted.python import log
@@ -22,7 +23,6 @@ class SomeServerProtocol(WebSocketServerProtocol):
         Try to find conversation partner for this client.
         """
         self.factory.register(self)
-        self.factory.findPartner(self)
 
     def connectionLost(self, reason):
         """
@@ -56,20 +56,6 @@ class ProjectorFactory(WebSocketServerFactory):
         """
         self.clients.pop(client.peer)
 
-    def findPartner(self, client):
-        """
-        Find chat partner for a client. Check if there any of tracked clients
-        is idle. If there is no idle client just exit quietly. If there is
-        available partner assign him/her to our client.
-        """
-        available_partners = [c for c in self.clients if c != client.peer and not self.clients[c]["partner"]]
-        if not available_partners:
-            print("no partners for {} check in a moment".format(client.peer))
-        else:
-            partner_key = random.choice(available_partners)
-            self.clients[partner_key]["partner"] = client
-            self.clients[client.peer]["partner"] = self.clients[partner_key]["object"]
-
     def communicate(self, client, payload, isBinary):
         """
         Broker message from client to its partner.
@@ -79,6 +65,11 @@ class ProjectorFactory(WebSocketServerFactory):
             c["object"].sendMessage("Sorry you dont have partner yet, check back in a minute")
         else:
             c["partner"].sendMessage(payload)
+
+    def sendNewState(self, payload):
+      for peer, client in self.clients:
+        c["object"].sendMessage(json.dumps(payload))
+
 
 
 def serve(reactor):
@@ -95,3 +86,4 @@ def serve(reactor):
 
     site = Site(root)
     reactor.listenTCP(8080, site)
+    return factory

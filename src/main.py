@@ -3,15 +3,13 @@ from twisted.internet import task
 from twisted.internet import reactor
 from server import serve
 
-serve(reactor)
+factory = serve(reactor)
 
 def runEverySecond():
     print "a second has passed"
-    try:
-        print getFrame(debug=False)
-    except:
-        e = sys.exc_info()[0]
-        print "Error: " + e
+    frame = getFrame(debug=False)
+    print frame
+    factory.sendNewState(frame)
 
 l = task.LoopingCall(runEverySecond)
 l.start(0.1) # call every second
