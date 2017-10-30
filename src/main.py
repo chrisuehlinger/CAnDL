@@ -1,7 +1,13 @@
 from recognition import getFrame
-from time import time
+from twisted.internet import task
+from twisted.internet import reactor
 
-t0 = time()
-getFrame()
-t1 = time()
-print 'function vers1 takes %f' %(t1-t0)
+def runEverySecond():
+    print "a second has passed"
+    print getFrame()
+
+l = task.LoopingCall(runEverySecond)
+l.start(1.0) # call every second
+
+# l.stop() will stop the looping calls
+reactor.run()
