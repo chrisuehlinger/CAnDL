@@ -1,12 +1,14 @@
 !function init() {
   // create websocket instance
-  // var socket = new WebSocket("ws://antikythera.local:8080/ws");
-  // // add event listener reacting when message is received
-  // socket.onmessage = function (event) {
-  //   let data = JSON.parse(event.data);
-  //   console.log('MESSAGE', data);
-  //   updateModules(data);
-  // };
+  var socket = new WebSocket("ws://antikythera.local:8080/ws");
+  // add event listener reacting when message is received
+  socket.onmessage = function (event) {
+    let data = JSON.parse(event.data);
+    console.log('MESSAGE', data);
+    if (data){
+      updateModules(data);
+    }
+  };
 
   let canvas = document.getElementById('output'),
     ctx = canvas.getContext('2d');
@@ -52,7 +54,7 @@
       },
       onRender: function (ctx, liveModules) {
         let { width, height } = this.dimensions,
-            progress = ((Date.now()-startTime)%1000)/1000;
+            progress = ((Date.now()-this.startTime)%1000)/1000;
         ctx.strokeStyle = '#00f';
         ctx.beginPath();
         ctx.moveTo(0, 0);
@@ -111,25 +113,15 @@
   ];
 
   let liveModules = [];
-  updateModules();
+  //updateModules();
 
   function updateModules(newModules) {
-    newModules = [{
-      name: 'test1',
-      values: [58, 22, 22, 58],
-      points: [
-        [50, 100],
-        [100, 50],
-        [150, 100],
-        [100, 150]
-      ]
-    }];
 
     console.log('updateModules start', newModules);
 
     let brandNewModules = newModules.filter(newModule => !liveModules.reduce((isLive, liveModule) => isLive || liveModule.name === newModule.name, false)),
-        missingModules = liveModules.filter(liveModule => !newModules.reduce((isStillLive, newModules) => isStillLive || liveModule.name === newModule.name, false)),
-        stillThereModules = liveModules.filter(liveModule => newModules.reduce((isStillLive, newModules) => isStillLive || liveModule.name === newModule.name, false)),
+        missingModules = liveModules.filter(liveModule => !newModules.reduce((isStillLive, newModule) => isStillLive || liveModule.name === newModule.name, false)),
+        stillThereModules = liveModules.filter(liveModule => newModules.reduce((isStillLive, newModule) => isStillLive || liveModule.name === newModule.name, false)),
         newlyInstantiatedModules = [],
         modulesToDestroy = [];
 
@@ -154,7 +146,7 @@
 
         stillThereModules.map(stillThereModule => {
           let newModuleFrame = newModules.filter(newModule => newModule.name === stillThereModule.name)[0],
-              { point } = newModuleFrame;
+              { points } = newModuleFrame;
 
           stillThereModule.dimensions = {
             points,
@@ -168,7 +160,7 @@
 
         missingModules.map(missingModule => {
           missingModule.missingCount++;
-          if(missingCount >= 3) {
+          if(missingModule.missingCount >= 3) {
             missingModule.onDestroy(liveModules);
             modulesToDestroy.push(missingModule);
           }

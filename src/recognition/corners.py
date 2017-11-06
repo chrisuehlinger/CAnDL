@@ -149,7 +149,7 @@ def corners(imgpath, debug=False):
       [177,114,73], # Blue
       [0,150,219], # Orange
     ]
-    COLOR_TOLERANCE = 150
+    COLOR_TOLERANCE = 200
     for rect in candidateRects:
         rect['sides'] = []
         rect['values'] = []
@@ -194,6 +194,14 @@ def corners(imgpath, debug=False):
         {
             'values':[73,73,73,73],
             'name':'test2'
+        },
+        {
+            'values':[61, 23, 25, 54],
+            'name':'test3'
+        },
+        {
+            'values':[61, 50, 16, 64],
+            'name':'test4'
         }
     ]
     validRects = []

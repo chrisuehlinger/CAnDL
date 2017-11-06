@@ -7,7 +7,7 @@ factory = serve(reactor)
 
 def runEverySecond():
     print "a second has passed"
-    frame = getFrame(debug=False)
+    frame = getFrame(debug=True)
     print frame
     factory.sendNewState(frame)
 
