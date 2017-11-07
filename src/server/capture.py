@@ -1,16 +1,13 @@
-import sys
-import random
-import json
-
-from twisted.web.static import File
-from twisted.python import log
-from twisted.web.server import Site
-
 from autobahn.twisted.websocket import WebSocketServerFactory, \
     WebSocketServerProtocol
+import cv2
+import numpy as np
 
-from autobahn.twisted.resource import WebSocketResource
-
+def data_uri_to_cv2_img(uri):
+    encoded_data = uri.split(',')[1]
+    nparr = np.fromstring(encoded_data.decode('base64'), np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    return img
 
 class SomeServerProtocol(WebSocketServerProtocol):
     def onOpen(self):
@@ -31,18 +28,21 @@ class SomeServerProtocol(WebSocketServerProtocol):
         """
         self.factory.unregister(self)
 
-    def onMessage(self, payload, isBinary):
+    def onMessage(self, payload):
         """
         Message sent from client, communicate this message to its conversation partner,
         """
-        self.factory.communicate(self, payload, isBinary)
+        self.factory.receiveImage(payload)
 
 
 
-class ProjectorFactory(WebSocketServerFactory):
+class CaptureFactory(WebSocketServerFactory):
     def __init__(self, *args, **kwargs):
-        super(ProjectorFactory, self).__init__(*args, **kwargs)
+        super(CaptureFactory, self).__init__(*args, **kwargs)
         self.clients = {}
+
+    def registerReceiver(self, receiver):
+        self.receiver = receiver
 
     def register(self, client):
         """
@@ -56,34 +56,19 @@ class ProjectorFactory(WebSocketServerFactory):
         """
         self.clients.pop(client.peer)
 
-    def communicate(self, client, payload, isBinary):
+    def receiveImage(self, payload):
         """
-        Broker message from client to its partner.
+        Receive an image from a client
         """
-        c = self.clients[client.peer]
-        if not c["partner"]:
-            c["object"].sendMessage("Sorry you dont have partner yet, check back in a minute")
-        else:
-            c["partner"].sendMessage(payload)
+        if self.receiver is not None:
+          image = data_uri_to_cv2_img(payload)
+          self.receiver.receiveImage(image)
 
-    def sendNewState(self, payload):
+    def captureImage(self):
       for peer, client in self.clients.iteritems():
-        client["object"].sendMessage(json.dumps(payload))
+        client["object"].sendMessage("capture")
 
-
-
-def serve(reactor):
-    log.startLogging(sys.stdout)
-
-    # static file server seving index.html as root
-    root = File(".")
-
-    factory = ProjectorFactory(u"ws://127.0.0.1:8080")
-    factory.protocol = SomeServerProtocol
-    resource = WebSocketResource(factory)
-    # websockets resource on "/ws" path
-    root.putChild(u"ws", resource)
-
-    site = Site(root)
-    reactor.listenTCP(8080, site)
-    return factory
+def setup():
+  factory = CaptureFactory(u"ws://127.0.0.1:8080")
+  factory.protocol = SomeServerProtocol
+  return factory

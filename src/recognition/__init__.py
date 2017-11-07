@@ -12,3 +12,6 @@ def getFrame(debug=False):
     cv2.imwrite("test.png",im)
     return corners('test.png', debug=debug)
     #corners('../test-images/messy-scene-color.png')
+
+def getPrecapturedFrame(debug=False):
+  return corners('test.png', debug=debug)

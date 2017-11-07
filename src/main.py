@@ -1,18 +1,34 @@
-from recognition import getFrame
+from recognition import getFrame, getPrecapturedFrame
 from twisted.internet import task
 from twisted.internet import reactor
 from server import serve
 
-factory = serve(reactor)
+projector, capture = serve(reactor)
 
-def runEverySecond():
-    print "a second has passed"
-    frame = getFrame(debug=True)
-    print frame
-    factory.sendNewState(frame)
+class Engine():
+    def runEverySecond():
+        print "a second has passed"
+        frame = getFrame(debug=True)
+        print frame
+        projector.sendNewState(frame)
 
-l = task.LoopingCall(runEverySecond)
-l.start(0.1) # call every second
+    def captureImage():
+        print 'Capturing...'
+        capture.captureImage()
 
+    def receiveImage(self, image):
+      cv2.imwrite("test.png",image)
+      frame = getPrecapturedFrame(debug=True)
+      print frame
+      projector.sendNewState(frame)
+
+      reactor.callLater(0.1, self.captureImage)
+
+engine = Engine()
+# l = task.LoopingCall(engine.runEverySecond)
+# l.start(0.1) # call every second
 # l.stop() will stop the looping calls
+
+capture.registerReceiver(engine)
+reactor.callLater(0.1, engine.captureImage)
 reactor.run()
