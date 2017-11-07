@@ -18,6 +18,12 @@
         socket.send(data);
       };
 
+      socket.ondisconnect = function reconnect(){
+        socket = new WebSocket("wss://antikythera.local:8080/capture-socket");
+        socket.onerror = function(){ setTimeout(reconnect, 1000) }
+        socket.onconnect = function() { location.reload(); }
+      }
+
       function takeSnapshot() {
         var width = video.offsetWidth,
           height = video.offsetHeight;
