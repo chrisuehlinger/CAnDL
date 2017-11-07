@@ -14,13 +14,12 @@
       // add event listener reacting when message is received
       socket.onmessage = function (event) {
         console.log('CAPTURE');
-        let data = takeSnapshot;
+        let data = takeSnapshot();
         socket.send(data);
       };
 
       function takeSnapshot() {
-        var context,
-          width = video.offsetWidth,
+        var width = video.offsetWidth,
           height = video.offsetHeight;
         canvas.width = width;
         canvas.height = height;

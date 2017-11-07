@@ -28,7 +28,7 @@ class SomeServerProtocol(WebSocketServerProtocol):
         """
         self.factory.unregister(self)
 
-    def onMessage(self, payload):
+    def onMessage(self, payload, isBinary):
         """
         Message sent from client, communicate this message to its conversation partner,
         """
@@ -61,8 +61,8 @@ class CaptureFactory(WebSocketServerFactory):
         Receive an image from a client
         """
         if self.receiver is not None:
-          image = data_uri_to_cv2_img(payload)
-          self.receiver.receiveImage(image)
+            image = data_uri_to_cv2_img(payload)
+            self.receiver.receiveImage(image)
 
     def captureImage(self):
       for peer, client in self.clients.iteritems():

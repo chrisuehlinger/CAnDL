@@ -1,3 +1,4 @@
+import cv2
 from recognition import getFrame, getPrecapturedFrame
 from twisted.internet import task
 from twisted.internet import reactor
@@ -12,7 +13,7 @@ class Engine():
         print frame
         projector.sendNewState(frame)
 
-    def captureImage():
+    def captureImage(self):
         print 'Capturing...'
         capture.captureImage()
 
@@ -30,5 +31,5 @@ engine = Engine()
 # l.stop() will stop the looping calls
 
 capture.registerReceiver(engine)
-reactor.callLater(0.1, engine.captureImage)
+reactor.callLater(10.0, engine.captureImage)
 reactor.run()
