@@ -1,6 +1,7 @@
 import sys
 import random
 
+from twisted.internet import ssl
 from twisted.web.static import File
 from twisted.python import log
 from twisted.web.server import Site
@@ -27,5 +28,6 @@ def serve(reactor):
     root.putChild(u"capture-socket", captureSocket)
 
     site = Site(root)
-    reactor.listenTCP(8080, site)
+    reactor.listenSSL(8080, site, ssl.DefaultOpenSSLContextFactory(
+            '/home/pi/certs/antikythera.local.key', '/home/pi/certs/antikythera.local.crt'))
     return (projectorFactory, captureFactory)

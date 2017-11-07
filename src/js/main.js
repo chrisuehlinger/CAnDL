@@ -1,6 +1,6 @@
 !function init() {
   // create websocket instance
-  var socket = new WebSocket("ws://antikythera.local:8080/projector-socket");
+  var socket = new WebSocket("wss://antikythera.local:8080/projector-socket");
   // add event listener reacting when message is received
   socket.onmessage = function (event) {
     let data = JSON.parse(event.data);

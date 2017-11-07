@@ -10,7 +10,7 @@
       video.srcObject = stream;
       video.addEventListener('click', takeSnapshot);
 
-      let socket = new WebSocket("ws://antikythera.local:8080/capture-socket");
+      let socket = new WebSocket("wss://antikythera.local:8080/capture-socket");
       // add event listener reacting when message is received
       socket.onmessage = function (event) {
         console.log('CAPTURE');
