@@ -16,6 +16,7 @@ class Engine():
     def captureImage(self):
         print 'Capturing...'
         capture.captureImage()
+        reactor.callLater(1.0, self.captureImage)
 
     def receiveImage(self, image):
       cv2.imwrite("test.png",image)
@@ -23,7 +24,7 @@ class Engine():
       print frame
       projector.sendNewState(frame)
 
-      reactor.callLater(0.1, self.captureImage)
+
 
 engine = Engine()
 # l = task.LoopingCall(engine.runEverySecond)
@@ -31,5 +32,5 @@ engine = Engine()
 # l.stop() will stop the looping calls
 
 capture.registerReceiver(engine)
-reactor.callLater(10.0, engine.captureImage)
+reactor.callLater(1.0, engine.captureImage)
 reactor.run()
